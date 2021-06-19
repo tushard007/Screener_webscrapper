@@ -29,7 +29,7 @@ public class ScreenerRatioParser{
 			Callable<Integer> task = () -> {
 				seleniumConfig.seleniumDriver();
 				WebDriver driver = new ChromeDriver();
-				Screenerlogin(driver);
+				seleniumConfig.Screenerlogin(driver);
 				for (String stock : stockList) {
 					System.out.println("inside for loop");
 					driver.navigate().to(Constants.ScreenerURL + stock + "/");
@@ -197,19 +197,5 @@ public class ScreenerRatioParser{
 		long endTime = System.currentTimeMillis();
 		System.out.println("--------That took " + (endTime - startTime)/1000 + " seconds");
 		return lstRatio;
-	}
-
-	public void Screenerlogin(WebDriver driver){
-		try {
-			driver.navigate().to("https://www.screener.in/login/"); 
-			driver.findElement(By.id("id_username")).sendKeys("tushardesarda@outlook.com");
-			driver.findElement(By.id("id_password")).sendKeys("Dnpcoe@15");
-			WebElement login=driver.findElement(By.className("button-primary"));
-			Thread.sleep(6000);
-			System.out.println("logged in successfully");
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 }

@@ -1,8 +1,5 @@
 package com.webscraping.stockdata.selenium;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,18 +9,20 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import com.opencsv.CSVWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.webscraping.stockdata.entity.ScreenerBalanceSheetEntity;
 
 
-public class ScreenerBalenceSheetParser extends SeleniumConfig{
-
+public class ScreenerBalenceSheetParser {
+@Autowired
+SeleniumConfig seleniumConfig;
 	public ArrayList<ScreenerBalanceSheetEntity> getScreenerBSService(List<String> stockList)  {
 		ArrayList<ScreenerBalanceSheetEntity> lstBS=new ArrayList<>();
 		try {
-			seleniumDriver();
+			seleniumConfig.seleniumDriver();
 			WebDriver driver = new ChromeDriver();
-			Screenerlogin(driver);
+			seleniumConfig.Screenerlogin(driver);
 			List<String[]> data = new ArrayList<String[]>();
 			for (String stock : stockList) {
 				System.out.println("inside for loop");
@@ -47,6 +46,7 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 
 
 				String[] company= {"Company",companies};
+				
 				data.add(company);
 				String[] result= {"Quarterly Results","(Consolidated Figures in Rs. Crores )"};
 				data.add(result);
@@ -57,6 +57,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						ArrlstMonthYear.add("Quater");
 						String[] arrMonthYear=QuterlyEntity[0].split("(?<!\\G\\w+)\\s");
 						ArrlstMonthYear.addAll(Arrays.asList(arrMonthYear));
+						screenerBalanceSheetEntity.setQuater(ArrlstMonthYear);
+						
 						arrMonthYear=ArrlstMonthYear.toArray(arrMonthYear);
 						data.add(arrMonthYear);
 					}
@@ -68,6 +70,7 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrlstSale.add("Sales");
 						arrlstSale.addAll(Arrays.asList(arrSale));
 						arrlstSale.remove(1);
+						screenerBalanceSheetEntity.setQuaterlySales(arrlstSale);
 						arrSale=arrlstSale.toArray(arrSale);
 						data.add(arrSale); 
 					}
@@ -81,10 +84,9 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-					//-------------change variables
 					if(i==3) {
-						String expenses=QuterlyEntity[i].split("Profit")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String opProfit=QuterlyEntity[i].split("Profit")[1];
+						String[] arrExpenses=opProfit.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Operating Profit");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -92,11 +94,9 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-
-
 					if(i==4) {
-						String expenses=QuterlyEntity[i].split("OPM %")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String OPM=QuterlyEntity[i].split("OPM %")[1];
+						String[] arrExpenses=OPM.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("OPM");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -105,8 +105,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						data.add(arrExpenses); 
 					}
 					if(i==5) {
-						String expenses=QuterlyEntity[i].split("Income")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String income=QuterlyEntity[i].split("Income")[1];
+						String[] arrExpenses=income.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Other Income");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -115,8 +115,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						data.add(arrExpenses); 
 					}
 					if(i==6) {
-						String expenses=QuterlyEntity[i].split("Interest")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String intrest=QuterlyEntity[i].split("Interest")[1];
+						String[] arrExpenses=intrest.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Interest");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -125,8 +125,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						data.add(arrExpenses); 
 					}
 					if(i==7) {
-						String expenses=QuterlyEntity[i].split("Depreciation")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String deprecition=QuterlyEntity[i].split("Depreciation")[1];
+						String[] arrExpenses=deprecition.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Depreciation");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -135,8 +135,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						data.add(arrExpenses); 
 					}
 					if(i==8) {
-						String expenses=QuterlyEntity[i].split("tax")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String tax=QuterlyEntity[i].split("tax")[1];
+						String[] arrExpenses=tax.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Profit before tax");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -145,8 +145,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						data.add(arrExpenses); 
 					}
 					if(i==9) {
-						String expenses=QuterlyEntity[i].split("Tax %")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String taxPer=QuterlyEntity[i].split("Tax %")[1];
+						String[] arrExpenses=taxPer.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Tax");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -154,10 +154,9 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-
 					if(i==10) {
-						String expenses=QuterlyEntity[i].split("Profit")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String profit=QuterlyEntity[i].split("Profit")[1];
+						String[] arrExpenses=profit.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("Net Profit");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -165,8 +164,8 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}if(i==11) {
-						String expenses=QuterlyEntity[i].split("Rs")[1];
-						String[] arrExpenses=expenses.split("\\s");
+						String eps=QuterlyEntity[i].split("Rs")[1];
+						String[] arrExpenses=eps.split("\\s");
 						ArrayList<String> arrlstExpenses=new ArrayList<>();
 						arrlstExpenses.add("EPS in Rs");
 						arrlstExpenses.addAll(Arrays.asList(arrExpenses));
@@ -174,9 +173,7 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-
 				}
-
 				WebElement profitLoss = driver.findElement(By.xpath("//body/main[1]/section[5]/div[2]"));
 				String[] result1= {"Profit & Loss","(Consolidated Figures in Rs. Crores )"};
 				data.add(result1);
@@ -195,7 +192,6 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrMonthYear=ArrlstMonthYear.toArray(arrMonthYear);
 						data.add(arrMonthYear);
 					}
-
 					if(i==1) { 
 						String Sale=arrProfitLoss[i].split("\\+")[1];
 						String[] arrSale=Sale.split("\\s");
@@ -226,8 +222,6 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-
-
 					if(i==4) {
 						String opmPER=arrProfitLoss[i].split("OPM %")[1];
 						String[] arrExpenses=opmPER.split("\\s");
@@ -288,7 +282,6 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-
 					if(i==10) {
 						String profit=arrProfitLoss[i].split("Profit")[1];
 						String[] arrExpenses=profit.split("\\s");
@@ -308,7 +301,6 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 						arrExpenses=arrlstExpenses.toArray(arrExpenses);
 						data.add(arrExpenses); 
 					}
-
 					if(i==12) {
 						String payout=arrProfitLoss[i].split("Payout %")[1];
 						String[] arrExpenses=payout.split("\\s");
@@ -341,14 +333,65 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 				 * System.out.println("---------------------Ratios end----------");
 				 */		
 
-				WebElement cashFlow = driver.findElement(By.xpath("//body/main[1]/section[8]/div[2]"));
-				String[] resultCF= {"Cash flow"};
-				data.add(resultCF);
-				String[] arrCashFlow=cashFlow.getText().split("\\r?\\n");
+				WebElement CashFlows = driver.findElement(By.xpath("//body/main[1]/section[7]/div[2]"));
+				  System.out.println("-------Cash Flows------\n\n"+CashFlows.getText());
+					String[] CF= {"Cash Flows"};
+					data.add(CF);
+					String[] arrCashFlow=CashFlows.getText().split("\\r?\\n");
+					
+					for(int i=0;i<arrCashFlow.length;i++) {
+					
+					}
+				
+				WebElement ratios = driver.findElement(By.xpath("//body/main[1]/section[8]/div[2]"));
+				String[] ratio= {"Ratios"};
+				data.add(ratio);
+				String[] arrRatio=ratios.getText().split("\\r?\\n");
+				
+				for(int i=0;i<arrRatio.length;i++) {
+				//	System.out.println("Cash Flow:"+arrRatio[i]);
+					if(i==0) {
+						ArrayList<String> ArrlstYear=new ArrayList<>();
+						ArrlstYear.add("Ratios");
+						String[] arrYear=arrRatio[0].split("(?<!\\G\\w+)\\s");
+						ArrlstYear.addAll(Arrays.asList(arrYear));
+						arrYear=ArrlstYear.toArray(arrYear);
+						data.add(arrYear);
+					}
+					if(i==1) {
+						String roce=arrRatio[i].split("ROCE %")[1];
+						String[] arrROCE=roce.split("\\s");
+						ArrayList<String> arrlstROCE=new ArrayList<>();
+						arrlstROCE.add("ROCE %");
+						arrlstROCE.addAll(Arrays.asList(arrROCE));
+						arrlstROCE.remove(1);
+						arrROCE=arrlstROCE.toArray(arrROCE);
+						data.add(arrROCE); 
+					}
+					if(i==2) {
+						String roce=arrRatio[i].split("Days")[1];
+						String[] arrROCE=roce.split("\\s");
+						ArrayList<String> arrlstROCE=new ArrayList<>();
+						arrlstROCE.add("Debtor Day");
+						arrlstROCE.addAll(Arrays.asList(arrROCE));
+						arrlstROCE.remove(1);
+						arrROCE=arrlstROCE.toArray(arrROCE);
+						data.add(arrROCE); 
+					}
+					if(i==3) {
+						String roce=arrRatio[i].split("Turnover")[1];
+						String[] arrROCE=roce.split("\\s");
+						ArrayList<String> arrlstROCE=new ArrayList<>();
+						arrlstROCE.add("Inventory Turnover");
+						arrlstROCE.addAll(Arrays.asList(arrROCE));
+						arrlstROCE.remove(1);
+						arrROCE=arrlstROCE.toArray(arrROCE);
+						data.add(arrROCE); 
+					}
+				}
 			}
-			writeDataForCustomSeperatorCSV("E:\\project\\outputfile.csv",data);
-
-
+			
+			seleniumConfig.writeDataForCustomSeperatorCSV(Constants.BSExcelPath,data);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -356,46 +399,6 @@ public class ScreenerBalenceSheetParser extends SeleniumConfig{
 		return lstBS;
 	}
 
-	public void Screenerlogin(WebDriver driver){
-		try {
-			driver.navigate().to("https://www.screener.in/login/"); 
-			driver.findElement(By.id("id_username")).sendKeys("tushardesarda@outlook.com");
-			driver.findElement(By.id("id_password")).sendKeys("Dnpcoe@15");
-			//WebElement login=driver.findElement(By.className("button-primary"));
-			Thread.sleep(10000);
-			System.out.println("logged in successfully");
 
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public  void writeDataForCustomSeperatorCSV(String filePath,List<String[]> data)
-	{
-		File file = new File(filePath);
-
-		try {
-			// create FileWriter object with file as parameter
-			FileWriter outputfile = new FileWriter(file);
-
-			// create CSVWriter with '|' as separator
-			CSVWriter writer = new CSVWriter(outputfile);
-
-			// create a List which contains String array
-			/*
-			 * List<String[]> data = new ArrayList<String[]>();
-			 *  data.add(new String[] {
-			 * "Name", "Class", "Marks" }); data.add(new String[] { "Aman", "10", "620" });
-			 * data.add(new String[] { "Suraj", "10", "630" });
-			 */
-			writer.writeAll(data);
-
-			// closing writer connection
-			writer.close();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 }
